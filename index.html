@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>%STORE_NAME% — %STORE_TAGLINE%</title>
+    <meta name="description" content="%STORE_DESCRIPTION%" />
+    <meta name="theme-color" content="#15130f" />
+    <meta property="og:title" content="%STORE_NAME%" />
+    <meta property="og:description" content="%STORE_DESCRIPTION%" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400..800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Aplica el tema antes de pintar para que no haya "flash" de color.
+      (function () {
+        var t = 'light';
+        try {
+          t = localStorage.getItem('theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <style>
+      #boot { position: fixed; inset: 0; z-index: 2000; background: #0f0e0c; }
+    </style>
+  </head>
+  <body>
+    <div id="boot" aria-hidden="true"></div>
+    <div id="root"></div>
+    <noscript>Necesitás activar JavaScript para comprar en %STORE_NAME%.</noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

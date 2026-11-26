@@ -1,0 +1,40 @@
+{
+  "name": "tienda-online",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Tienda online lista para vender: React + Node (Express) + Neon Postgres, deploy en Vercel.",
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c yellow,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node --watch server/dev.js",
+    "dev:web": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "db:setup": "node scripts/db.js setup",
+    "db:schema": "node scripts/db.js schema",
+    "db:demo": "node scripts/db.js demo",
+    "db:clear-demo": "node scripts/db.js clear-demo",
+    "db:reset": "node scripts/db.js reset"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "jose": "^5.9.6",
+    "nodemailer": "^6.9.16",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.1",
+    "vite": "^5.4.11"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
