@@ -54,6 +54,13 @@ export const STATUS = {
   cancelado: { label: 'Cancelado', tone: 'critical' },
 };
 
+export const RETURN_STATUS = {
+  solicitada: { label: 'Solicitada', tone: 'warning' },
+  aprobada: { label: 'Aprobada', tone: 'info' },
+  rechazada: { label: 'Rechazada', tone: 'critical' },
+  completada: { label: 'Completada', tone: 'good' },
+};
+
 export const paymentLabel = (id) => store.paymentMethods.find((p) => p.id === id)?.label || id;
 
 /** Pide a Unsplash el tamaño justo de imagen (ahorra datos en celulares). */

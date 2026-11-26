@@ -1485,3 +1485,19 @@ a.mini:hover {
     width: 100%;
   }
 }
+
+/* ── Devoluciones (panel) ─────────────────────────────────── */
+.returns-hint {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  max-width: 70ch;
+}
+.returns-item {
+  display: block;
+  font-weight: 600;
+}
+.table td small a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

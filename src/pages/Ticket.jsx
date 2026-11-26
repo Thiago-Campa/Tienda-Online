@@ -4,10 +4,10 @@ import QRCode from 'qrcode';
 import { store } from '../../config/store.config.js';
 import { api } from '../lib/api.js';
 import { useAsync, useTitle } from '../lib/hooks.js';
-import { dateTime, money, paymentLabel, ticketCode } from '../lib/format.js';
+import { dateTime, money, paymentLabel, shortDate, ticketCode } from '../lib/format.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
-import { Spinner, StatusPill } from '../components/ui.jsx';
+import { ReturnPill, Spinner, StatusPill } from '../components/ui.jsx';
 import { IconArrow, IconCheck, IconCopy, IconMail, IconPrinter } from '../components/Icons.jsx';
 
 const STEPS = ['pendiente', 'pagado', 'enviado', 'entregado'];
@@ -83,6 +83,46 @@ function PaymentInfo({ order }) {
       <p>
         Pagás <b>en efectivo</b> al {order.delivery_method === 'retiro' ? 'retirar' : 'recibir'} el pedido.
       </p>
+    </div>
+  );
+}
+
+function ReturnPanel({ order }) {
+  if (order.status === 'cancelado') return null;
+  const days = store.returns.days;
+  return (
+    <div className="panel">
+      <h2 className="panel__title">Devoluciones</h2>
+      {order.return ? (
+        <>
+          <p className="return-line">
+            <ReturnPill status={order.return.status} />
+            <span className="muted">Solicitada el {shortDate(order.return.created_at)}</span>
+          </p>
+          {order.return.admin_note && <p className="muted">“{order.return.admin_note}”</p>}
+          <Link to={`/devolucion/${order.code}`} className="btn btn--ghost btn--block">
+            Ver mi solicitud
+          </Link>
+        </>
+      ) : order.can_return ? (
+        <>
+          <p className="muted">
+            Te quedan <b>{order.return_days_left} día{order.return_days_left === 1 ? '' : 's'}</b> para pedir la devolución (hasta el{' '}
+            {shortDate(order.return_deadline)}).
+          </p>
+          <Link to={`/devolucion/${order.code}`} className="btn btn--primary btn--block">
+            Solicitar devolución
+          </Link>
+        </>
+      ) : order.return_expired ? (
+        <p className="muted">
+          El plazo de {days} días terminó el {shortDate(order.return_deadline)}. Si tuviste un problema, escribinos por WhatsApp.
+        </p>
+      ) : (
+        <p className="muted">
+          Tenés {days} días para pedir la devolución, contados desde que el pedido figura como entregado.
+        </p>
+      )}
     </div>
   );
 }
@@ -278,6 +318,8 @@ export default function Ticket() {
             <h2 className="panel__title">Cómo pagar</h2>
             <PaymentInfo order={order} />
           </div>
+
+          <ReturnPanel order={order} />
 
           <div className="ticket-actions">
             <button type="button" className="btn btn--primary btn--block" onClick={() => window.print()}>

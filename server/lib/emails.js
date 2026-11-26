@@ -172,3 +172,47 @@ export function statusEmail({ order, url }) {
     text: `${copy.title}\n${copy.text}\n\nVer pedido: ${url}`,
   };
 }
+
+/* ── Devoluciones ───────────────────────────────────────── */
+
+const RETURN_COPY = {
+  solicitada: {
+    title: 'Recibimos tu solicitud de devolución',
+    text: 'La revisamos y te respondemos por este medio a la brevedad.',
+  },
+  aprobada: {
+    title: 'Aprobamos tu devolución',
+    text: 'Escribinos por WhatsApp con tu número de ticket para coordinar el retiro o la entrega del producto.',
+  },
+  rechazada: {
+    title: 'No pudimos aprobar tu devolución',
+    text: 'Si tenés dudas o querés que lo revisemos de nuevo, respondé este mail o escribinos por WhatsApp.',
+  },
+  completada: {
+    title: 'Tu devolución quedó completada',
+    text: 'Ya está todo resuelto. ¡Gracias por avisarnos!',
+  },
+};
+
+export function returnEmail({ order, ret, url }) {
+  const copy = RETURN_COPY[ret.status];
+  if (!copy) return null;
+  const items = (Array.isArray(ret.items) ? ret.items : [])
+    .map((i) => `<li style="margin:0 0 4px">${esc(i.quantity)} × ${esc(i.product_name)}</li>`)
+    .join('');
+  const note = ret.admin_note
+    ? `<p style="margin:0 0 18px;padding:14px 16px;background:${PAPER};border-radius:12px;color:#3b3730"><b>Mensaje de la tienda:</b><br>${esc(ret.admin_note)}</p>`
+    : '';
+  const body = `
+    <p style="margin:0 0 6px;font:700 12px/1 ${FONT};letter-spacing:2px;text-transform:uppercase;color:${MUTED}">Ticket ${esc(ticketCode(order.code))} · Devolución</p>
+    <h1 style="margin:0 0 12px;font:800 28px/1.15 ${FONT};letter-spacing:-0.6px;">${esc(copy.title)}</h1>
+    <p style="margin:0 0 18px;color:#3b3730">${esc(copy.text)}</p>
+    ${note}
+    <ul style="margin:0 0 24px;padding-left:20px;color:#3b3730">${items}</ul>
+    <p style="margin:0">${button(url, 'Ver mi pedido')}</p>`;
+  return {
+    subject: `${copy.title} · ${ticketCode(order.code)}`,
+    html: layout({ preheader: copy.text, body }),
+    text: `${copy.title}\n${copy.text}${ret.admin_note ? `\n\nMensaje de la tienda: ${ret.admin_note}` : ''}\n\nVer pedido: ${url}`,
+  };
+}

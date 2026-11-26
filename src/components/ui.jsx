@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
 import { IconMinus, IconMoon, IconPlus, IconSun } from './Icons.jsx';
-import { STATUS, emphasis } from '../lib/format.js';
+import { RETURN_STATUS, STATUS, emphasis } from '../lib/format.js';
 
 /** Aparece suavemente al entrar en pantalla. */
 export function Reveal({ as: Tag = 'div', delay = 0, className = '', children, ...rest }) {
@@ -76,6 +76,16 @@ export function QtyStepper({ value, max, onChange, size = 'md' }) {
 
 export function StatusPill({ status }) {
   const s = STATUS[status] || { label: status, tone: 'neutral' };
+  return (
+    <span className={`pill pill--${s.tone}`}>
+      <i aria-hidden="true" />
+      {s.label}
+    </span>
+  );
+}
+
+export function ReturnPill({ status }) {
+  const s = RETURN_STATUS[status] || { label: status, tone: 'neutral' };
   return (
     <span className={`pill pill--${s.tone}`}>
       <i aria-hidden="true" />

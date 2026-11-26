@@ -151,7 +151,24 @@ export const store = {
   ],
 
   /** Firma del desarrollador en el pie de página (podés dejarlo vacío) */
-  credit: { label: 'Sitio hecho por Tu Estudio', url: '#' },
+  credit: { label: 'Sitio hecho por Thiago Campa', url: 'https://github.com/Thiago-Campa' },
+
+  /** Devoluciones: plazo (en días, contado desde que el pedido figura como entregado) y opciones del formulario */
+  returns: {
+    days: 30,
+    reasons: [
+      { id: 'defectuoso', label: 'Llegó defectuoso o dañado' },
+      { id: 'distinto', label: 'No es lo que pedí' },
+      { id: 'no-sirve', label: 'No me queda / no me sirve' },
+      { id: 'arrepentimiento', label: 'Me arrepentí de la compra' },
+      { id: 'otro', label: 'Otro motivo' },
+    ],
+    resolutions: [
+      { id: 'reembolso', label: 'Reembolso', detail: 'Te devolvemos el dinero.' },
+      { id: 'cambio', label: 'Cambio', detail: 'Lo cambiamos por otro producto.' },
+    ],
+  },
 };
 
 export const ORDER_STATUSES = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'];
+export const RETURN_STATUSES = ['solicitada', 'aprobada', 'rechazada', 'completada'];

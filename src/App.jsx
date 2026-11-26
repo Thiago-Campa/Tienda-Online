@@ -15,6 +15,7 @@ import Product from './pages/Product.jsx';
 import Login from './pages/Login.jsx';
 import Checkout from './pages/Checkout.jsx';
 import Ticket from './pages/Ticket.jsx';
+import ReturnPage from './pages/Return.jsx';
 import Account from './pages/Account.jsx';
 import NotFound from './pages/NotFound.jsx';
 
@@ -24,6 +25,7 @@ const Dashboard = lazy(() => import('./pages/admin/Dashboard.jsx'));
 const AdminOrders = lazy(() => import('./pages/admin/Orders.jsx'));
 const AdminProducts = lazy(() => import('./pages/admin/Products.jsx'));
 const AdminCustomers = lazy(() => import('./pages/admin/Customers.jsx'));
+const AdminReturns = lazy(() => import('./pages/admin/Returns.jsx'));
 
 function StoreLayout() {
   const { pathname } = useLocation();
@@ -97,6 +99,14 @@ function Shell() {
               </RequireAuth>
             }
           />
+          <Route
+            path="devolucion/:code"
+            element={
+              <RequireAuth>
+                <ReturnPage />
+              </RequireAuth>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Route>
 
@@ -114,6 +124,7 @@ function Shell() {
           <Route path="pedidos" element={<AdminOrders />} />
           <Route path="productos" element={<AdminProducts />} />
           <Route path="clientes" element={<AdminCustomers />} />
+          <Route path="devoluciones" element={<AdminReturns />} />
         </Route>
       </Routes>
     </>

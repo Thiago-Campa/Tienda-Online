@@ -5,7 +5,7 @@ import { store } from '../../../config/store.config.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useEscape, useLockScroll } from '../../lib/hooks.js';
 import { Spinner, ThemeToggle } from '../../components/ui.jsx';
-import { IconArrowUpRight, IconBox, IconChart, IconClose, IconLogout, IconTag, IconUsers } from '../../components/Icons.jsx';
+import { IconArrowUpRight, IconBox, IconChart, IconClose, IconLogout, IconRefresh, IconTag, IconUsers } from '../../components/Icons.jsx';
 import '../../styles/admin.css';
 
 const NAV = [
@@ -13,6 +13,7 @@ const NAV = [
   { to: '/admin/pedidos', label: 'Pedidos', Icon: IconBox },
   { to: '/admin/productos', label: 'Productos', Icon: IconTag },
   { to: '/admin/clientes', label: 'Clientes', Icon: IconUsers },
+  { to: '/admin/devoluciones', label: 'Devoluciones', Icon: IconRefresh },
 ];
 
 export default function AdminLayout() {

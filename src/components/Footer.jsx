@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { store } from '../../config/store.config.js';
-import { IconFacebook, IconInstagram, IconMail, IconPin, IconTiktok, IconWhatsapp, IconClock } from './Icons.jsx';
+import { IconFacebook, IconGithub, IconInstagram, IconMail, IconPin, IconTiktok, IconWhatsapp, IconClock } from './Icons.jsx';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -68,7 +68,8 @@ export default function Footer() {
         </span>
         <span className="footer__pay">Transferencia · Tarjetas · Efectivo</span>
         {store.credit?.label && (
-          <a href={store.credit.url} target="_blank" rel="noreferrer">
+          <a className="footer__credit" href={store.credit.url} target="_blank" rel="noreferrer">
+            {store.credit.url?.includes('github.com') && <IconGithub size={16} />}
             {store.credit.label}
           </a>
         )}

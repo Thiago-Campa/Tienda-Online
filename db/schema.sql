@@ -175,3 +175,27 @@ BEGIN
   RETURN v_code;
 END;
 $$ LANGUAGE plpgsql;
+
+-- ─────────────────────────────────────────────────────────────
+--  Devoluciones (plazo de 30 días + formulario)
+--  Se puede correr varias veces: solo agrega lo que falta.
+-- ─────────────────────────────────────────────────────────────
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMPTZ;
+UPDATE orders SET delivered_at = updated_at WHERE status = 'entregado' AND delivered_at IS NULL;
+
+CREATE TABLE IF NOT EXISTS returns (
+  id          SERIAL PRIMARY KEY,
+  order_id    INT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+  user_id     INT NOT NULL REFERENCES users(id),
+  status      TEXT NOT NULL DEFAULT 'solicitada'
+              CHECK (status IN ('solicitada', 'aprobada', 'rechazada', 'completada')),
+  reason      TEXT NOT NULL,
+  resolution  TEXT NOT NULL CHECK (resolution IN ('reembolso', 'cambio')),
+  details     TEXT,
+  items       JSONB NOT NULL DEFAULT '[]'::jsonb,
+  admin_note  TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS returns_order_uidx ON returns (order_id);
+CREATE INDEX IF NOT EXISTS returns_status_idx ON returns (status, created_at DESC);

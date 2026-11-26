@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { store, ORDER_STATUSES } from '../../config/store.config.js';
+import { store, ORDER_STATUSES, RETURN_STATUSES } from '../../config/store.config.js';
 import { query, one } from '../lib/db.js';
 import { HttpError, ah, clean, slugify, siteUrl } from '../lib/http.js';
 import { requireAdmin } from '../lib/auth.js';
 import { sendMail } from '../lib/mailer.js';
-import { statusEmail } from '../lib/emails.js';
+import { statusEmail, returnEmail } from '../lib/emails.js';
 import { PRODUCT_COLS, PRODUCT_FROM } from './catalog.js';
 import { getOrder } from './orders.js';
 
@@ -355,7 +355,13 @@ router.patch(
         [id]
       );
     } else {
-      await query(`UPDATE orders SET status = $2, updated_at = now() WHERE id = $1`, [id, status]);
+      await query(
+        `UPDATE orders
+            SET status = $2::text, updated_at = now(),
+                delivered_at = CASE WHEN $2::text = 'entregado' THEN COALESCE(delivered_at, now()) ELSE delivered_at END
+          WHERE id = $1`,
+        [id, status]
+      );
     }
 
     const order = await getOrder(current.code);
@@ -370,6 +376,65 @@ router.patch(
       }
     }
     res.json({ order, notified });
+  })
+);
+
+/* ── Devoluciones ───────────────────────────────────────── */
+
+router.get(
+  '/returns',
+  ah(async (req, res) => {
+    const status = RETURN_STATUSES.includes(req.query.status) ? req.query.status : null;
+    const returns = await query(
+      `SELECT r.id, r.status, r.reason, r.resolution, r.details, r.items, r.admin_note, r.created_at, r.updated_at,
+              o.code, o.total::float8 AS total, u.email AS customer_email, u.name AS customer_name
+         FROM returns r
+         JOIN orders o ON o.id = r.order_id
+         JOIN users u ON u.id = r.user_id
+        WHERE ($1::text IS NULL OR r.status = $1)
+        ORDER BY (r.status = 'solicitada') DESC, r.created_at DESC
+        LIMIT 200`,
+      [status]
+    );
+    const counts = await query(`SELECT status, COUNT(*)::int AS n FROM returns GROUP BY status`);
+    const byStatus = Object.fromEntries(counts.map((c) => [c.status, c.n]));
+    byStatus.todas = counts.reduce((acc, c) => acc + c.n, 0);
+    res.json({ returns, counts: byStatus });
+  })
+);
+
+router.patch(
+  '/returns/:id',
+  ah(async (req, res) => {
+    const id = readId(req);
+    const status = req.body?.status;
+    if (!RETURN_STATUSES.includes(status)) throw new HttpError(400, 'Estado inválido.');
+    const note = clean(req.body?.note, 400);
+
+    const row = await one(
+      `UPDATE returns
+          SET status = $2::text, admin_note = COALESCE(NULLIF($3::text, ''), admin_note), updated_at = now()
+        WHERE id = $1
+        RETURNING id, order_id, status, reason, resolution, details, items, admin_note, created_at, updated_at`,
+      [id, status, note]
+    );
+    if (!row) throw new HttpError(404, 'Devolución no encontrada.');
+
+    const info = await one(
+      `SELECT o.code, u.email AS customer_email FROM orders o JOIN users u ON u.id = o.user_id WHERE o.id = $1`,
+      [row.order_id]
+    );
+    let notified = false;
+    const mail = returnEmail({ order: { code: info.code }, ret: row, url: `${siteUrl(req)}/ticket/${info.code}` });
+    if (mail) {
+      try {
+        await sendMail({ to: info.customer_email, ...mail });
+        notified = true;
+      } catch (err) {
+        console.error('No se pudo avisar el cambio de la devolución:', err);
+      }
+    }
+    res.json({ return: { ...row, code: info.code, customer_email: info.customer_email }, notified });
   })
 );
 

@@ -9,6 +9,7 @@ import { launchConfetti } from '../lib/confetti.js';
 import { img, money } from '../lib/format.js';
 import { useTitle } from '../lib/hooks.js';
 import { Img } from '../components/ui.jsx';
+import CardForm, { EMPTY_CARD, validateCard } from '../components/CardForm.jsx';
 import { IconArrow, IconBag, IconCard, IconShield, IconStore, IconTruck } from '../components/Icons.jsx';
 
 export default function Checkout() {
@@ -29,6 +30,9 @@ export default function Checkout() {
     payment: store.paymentMethods[0]?.id,
     notes: '',
   });
+  // Datos de la tarjeta (solo demostración): viven aparte de `form` para que nunca viajen al servidor.
+  const [card, setCard] = useState(EMPTY_CARD);
+  const [cardErrors, setCardErrors] = useState({});
   const [errors, setErrors] = useState({});
   const [sending, setSending] = useState(false);
 
@@ -61,8 +65,10 @@ export default function Checkout() {
   const submit = async (e) => {
     e.preventDefault();
     const errs = validate();
+    const cardErrs = form.payment === 'tarjeta' ? validateCard(card) : {};
     setErrors(errs);
-    if (Object.keys(errs).length) {
+    setCardErrors(cardErrs);
+    if (Object.keys(errs).length || Object.keys(cardErrs).length) {
       formRef.current?.querySelector('[aria-invalid="true"]')?.focus();
       return;
     }
@@ -72,6 +78,7 @@ export default function Checkout() {
         method: 'POST',
         body: { ...form, items: items.map((i) => ({ id: i.id, qty: i.qty })) },
       });
+      setCard(EMPTY_CARD);
       clear();
       refreshUser();
       launchConfetti();
@@ -177,6 +184,17 @@ export default function Checkout() {
                 </label>
               ))}
             </div>
+            {form.payment === 'tarjeta' && (
+              <CardForm
+                value={card}
+                total={total}
+                errors={cardErrors}
+                onChange={(next) => {
+                  setCard(next);
+                  setCardErrors({});
+                }}
+              />
+            )}
             <label className="field">
               <span>
                 Notas para el pedido <small>(opcional)</small>

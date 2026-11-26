@@ -119,6 +119,13 @@ export default function Account() {
                     <small>
                       {shortDate(o.created_at)} · {o.items} producto{o.items === 1 ? '' : 's'}
                     </small>
+                    {o.return_status ? (
+                      <small className="order-row__return">Devolución {o.return_status}</small>
+                    ) : o.can_return ? (
+                      <small className="order-row__return is-open">
+                        Podés devolverlo hasta el {shortDate(o.return_deadline)}
+                      </small>
+                    ) : null}
                   </span>
                   <StatusPill status={o.status} />
                   <b className="order-row__total">{money(o.total)}</b>
